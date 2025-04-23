@@ -22,6 +22,7 @@ public class PromotionDetailStore: ObservableObject {
   private let detailRepository: PromotionDetailRepositoryLogic
   private let dashboardResponder: DashboardResponder
   private let navigator: PromotionNavigator
+  private let advocateNavigator: OnlineAdvocateNavigator
   
   public var didBack = PassthroughSubject<Bool, Never>()
   
@@ -41,7 +42,8 @@ public class PromotionDetailStore: ObservableObject {
     repository: PromotionRepositoryLogic,
     detailRepository: PromotionDetailRepositoryLogic,
     dashboardResponder: DashboardResponder,
-    navigator: PromotionNavigator
+    navigator: PromotionNavigator,
+    advocateNavigator: OnlineAdvocateNavigator
   ) {
     self.slug = slug
     self.userSessionDataSource = userSessionDataSource
@@ -49,6 +51,7 @@ public class PromotionDetailStore: ObservableObject {
     self.detailRepository = detailRepository
     self.dashboardResponder = dashboardResponder
     self.navigator = navigator
+    self.advocateNavigator = advocateNavigator
   }
   
   //MARK: - API
@@ -164,6 +167,16 @@ public class PromotionDetailStore: ObservableObject {
     didBack.send(true)
   }
   
+  public func navigateToListAdvocate() {
+    advocateNavigator.navigateToListAdvocate(
+      categoryAdvocate: "",
+      listCategoryID: [],
+      listSkillAdvocate: [],
+      listingType: "",
+      sktmModel: nil
+    )
+  }
+  
   public func shareFacebook() {
     let urlString = "https://www.facebook.com/sharer/sharer.php?u=\(environment.baseURL)/promo/\(slug)&quote=\(entity.name)"
     navigator.openLink(URL(string: urlString))
@@ -178,7 +191,7 @@ public class PromotionDetailStore: ObservableObject {
     var urlString = "https://api.whatsapp.com/send?text=\(environment.baseURL)/promo/\(slug)"
     urlString = urlString.replacingOccurrences(of: " ", with: "%20")
     guard let url = URL(string: urlString) else { return }
-    navigator.openLink(URL(string: urlString))
+    navigator.openLink(url)
   }
   
   public func copyLink() {

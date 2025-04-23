@@ -103,7 +103,8 @@ public class PromotionDependencyContainer {
       repository: makePromotionListRepository(),
       detailRepository: makeRepository(),
       dashboardResponder: mainViewModel,
-      navigator: viewModel
+      navigator: viewModel,
+      advocateNavigator: mainViewModel
     )
   }
   

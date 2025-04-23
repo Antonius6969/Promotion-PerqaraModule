@@ -170,7 +170,7 @@ public struct PromotionDetailView: View {
           width: 58,
           height: 40
         ) {
-          
+          store.navigateToListAdvocate()
         }
       }
       .padding(.horizontal, 16)
@@ -230,7 +230,8 @@ public struct PromotionDetailView: View {
       repository: MockPromotionRepository(),
       detailRepository: MockPromotionDetailRepository(),
       dashboardResponder: MockNavigator(),
-      navigator: MockNavigator()
+      navigator: MockNavigator(),
+      advocateNavigator: MockNavigator()
     )
   )
 }
