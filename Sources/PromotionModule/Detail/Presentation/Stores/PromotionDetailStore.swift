@@ -178,17 +178,19 @@ public class PromotionDetailStore: ObservableObject {
   }
   
   public func shareFacebook() {
-    let urlString = "https://www.facebook.com/sharer/sharer.php?u=\(environment.baseURL)/promo/\(slug)&quote=\(entity.name)"
-    navigator.openLink(URL(string: urlString))
+    let urlString = "https://www.facebook.com/sharer/sharer.php?u=\(environment.shareURL)/promo/\(slug)&quote=\(entity.name)"
+    let escapedShareString = urlString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
+    navigator.openLink(URL(string: escapedShareString))
   }
   
   public func shareTwitter() {
-    let urlString = "https://twitter.com/intent/tweet?url=\(environment.baseURL)/promo/\(slug)&text=\(entity.name)"
-    navigator.openLink(URL(string: urlString))
+    let urlString = "https://twitter.com/intent/tweet?url=\(environment.shareURL)/promo/\(slug)&text=\(entity.name)"
+    let escapedShareString = urlString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
+    navigator.openLink(URL(string: escapedShareString))
   }
   
   public func shareWhatsapp() {
-    var urlString = "https://api.whatsapp.com/send?text=\(environment.baseURL)/promo/\(slug)"
+    var urlString = "https://api.whatsapp.com/send?text=\(environment.shareURL)/promo/\(slug)"
     urlString = urlString.replacingOccurrences(of: " ", with: "%20")
     guard let url = URL(string: urlString) else { return }
     navigator.openLink(url)

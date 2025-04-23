@@ -72,8 +72,12 @@ public class PromotionEntity: Identifiable, TransformableWithoutViewModel {
       endDate: data.endDate ?? "",
       description: data.description ?? "",
       tnc: data.tnc ?? "",
-      platform: ["WEB", "IOS", "ANDROID"],
-      quota: .init(total: 10, time: "MAX_QUOTA_DAILY", quota: 2),
+      platform: data.platform ?? [],
+      quota: .init(
+        total: data.quota?.total ?? 0,
+        time: data.quota?.rule?.key ?? "",
+        quota: data.quota?.rule?.quota ?? 0
+      ),
       status: PromotionStatus.convert(data.status ?? "")
     )
   }
