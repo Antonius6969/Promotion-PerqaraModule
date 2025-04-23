@@ -141,7 +141,7 @@ public class PromotionDetailStore: ObservableObject {
     
     let (days, _, _) = convertToDayHourMinute(from: Date(), to: endDate)
     
-    return days > 0 && days <= 2
+    return days >= 0 && days <= 2
   }
   
   private func convertToDayHourMinute(
