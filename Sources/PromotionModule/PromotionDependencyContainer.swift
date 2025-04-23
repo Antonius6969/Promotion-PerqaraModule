@@ -89,11 +89,21 @@ public class PromotionDependencyContainer {
       return PromotionDetailRepositoryImpl(remote: makeRemoteDataSource())
     }
     
+    func makePromotionListRemoteDataSource() -> PromotionRemoteDataSourceLogic {
+      return PromotionRemoteDataSourceImpl(service: networkService)
+    }
+    
+    func makePromotionListRepository() -> PromotionRepositoryLogic {
+      return PromotionRepositoryImpl(remote: makePromotionListRemoteDataSource())
+    }
+    
     return PromotionDetailStore(
       slug: slug,
       userSessionDataSource: userSessionDataSource,
-      repository: makeRepository(),
-      dashboardResponder: mainViewModel
+      repository: makePromotionListRepository(),
+      detailRepository: makeRepository(),
+      dashboardResponder: mainViewModel,
+      navigator: viewModel
     )
   }
   

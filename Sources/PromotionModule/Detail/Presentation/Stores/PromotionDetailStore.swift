@@ -9,6 +9,8 @@ import Foundation
 import AprodhitKit
 import GnDKit
 import Combine
+import Environment
+import UIKit
 
 public class PromotionDetailStore: ObservableObject {
   
@@ -16,42 +18,76 @@ public class PromotionDetailStore: ObservableObject {
   
   private let slug: String
   private let userSessionDataSource: UserSessionDataSourceLogic
-  private let repository: PromotionDetailRepositoryLogic
+  private let repository: PromotionRepositoryLogic
+  private let detailRepository: PromotionDetailRepositoryLogic
   private let dashboardResponder: DashboardResponder
+  private let navigator: PromotionNavigator
   
   public var didBack = PassthroughSubject<Bool, Never>()
   
+  @Published public var showButtonPromotionLists: Bool = false
+  @Published public var showFailedView: Bool = false
+  @Published public var failureTitle: String = ""
+  @Published public var failureDescription: String = ""
+  @Published public var entities: [PromotionEntity] = .init()
   @Published public var entity: PromotionEntity = .init()
   @Published public var isExpired: Bool = false
   private var userSessionData: UserSessionData? = nil
+  private var environment = Environment.shared
   
   public init(
     slug: String,
     userSessionDataSource: UserSessionDataSourceLogic,
-    repository: PromotionDetailRepositoryLogic,
-    dashboardResponder: DashboardResponder
+    repository: PromotionRepositoryLogic,
+    detailRepository: PromotionDetailRepositoryLogic,
+    dashboardResponder: DashboardResponder,
+    navigator: PromotionNavigator
   ) {
     self.slug = slug
     self.userSessionDataSource = userSessionDataSource
     self.repository = repository
+    self.detailRepository = detailRepository
     self.dashboardResponder = dashboardResponder
+    self.navigator = navigator
   }
   
   //MARK: - API
   
   @MainActor
+  public func fetchPromotionLists() async {
+    do {
+      entities = try await repository.fetchPromotionLists(
+        headers: HeaderRequest(token: ""),
+        parameters: PromotionListRequestParams()
+      )
+      
+      showButtonPromotionLists = !entities.isEmpty
+    } catch {
+      
+    }
+  }
+  
+  @MainActor
   public func fetchPromotionDetail() async {
     do {
-      entity = try await repository.fetchPromotionDetail(
+      entity = try await detailRepository.fetchPromotionDetail(
         headers: HeaderRequest(token: userSessionData?.remoteSession.remoteToken),
         parameters: PromotionDetailParamRequest(slug: slug)
       )
       
-      isExpired = entity.status == .EXPIRED
+      if entity.status == .EXPIRED {
+        showFailedView = true
+        failureTitle = "Promo Ini Sudah Berakhir"
+        failureDescription = "Penawaran yang Anda cari telah berakhir dan tidak dapat digunakan lagi."
+      }
       
     } catch {
       guard let error = error as? ErrorMessage
       else { return }
+      
+      showFailedView = true
+      failureTitle = "Tidak Ada Promo Tersedia"
+      failureDescription = "Anda dapat gunakan layanan terbaik Perqara tanpa promo. Nantikan penawaran menarik selanjutnya!"
       
       GLogger(
         .info,
@@ -77,43 +113,6 @@ public class PromotionDetailStore: ObservableObject {
     return entity.platform.joined(separator: ", ")
   }
   
-  public func getHTMlText() -> String {
-    return """
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-          <style>
-              body {
-                  font-family: 'Lexend', sans-serif;
-                  font-size: 14px;
-                  font-weight: 300;
-                  line-height: 1.6;
-                  marging: 0;
-                  padding: 0;
-              }
-              ol {
-                display: block;
-                list-style-type: decimal;
-                margin-top: 1em;
-                margin-bottom: 1em;
-                margin-left: 0;
-                margin-right: 0;
-                padding-left: 20px;
-              }
-          </style>
-      </head>
-      <body>
-        <p>ini syarat dan ketentuan</p>
-      </body>
-      </html>
-    """
-  }
-  
   public func getUsageInfo() -> String {
     var result: String = ""
     let info = entity.quota.time
@@ -133,12 +132,11 @@ public class PromotionDetailStore: ObservableObject {
   }
   
   public func isWithinTwoHours() -> Bool {
-    guard let endDate = entity.endDate.toDateNew(),
-          let startDate = entity.startDate.toDateNew() else {
+    guard let endDate = entity.endDate.toDateNew() else {
       return false
     }
     
-    let (days, _, _) = convertToDayHourMinute(from: startDate, to: endDate)
+    let (days, _, _) = convertToDayHourMinute(from: Date(), to: endDate)
     
     return days > 0 && days <= 2
   }
@@ -165,6 +163,29 @@ public class PromotionDetailStore: ObservableObject {
   public func navigateBack() {
     didBack.send(true)
   }
+  
+  public func shareFacebook() {
+    let urlString = "https://www.facebook.com/sharer/sharer.php?u=\(environment.baseURL)/promo/\(slug)&quote=\(entity.name)"
+    navigator.openLink(URL(string: urlString))
+  }
+  
+  public func shareTwitter() {
+    let urlString = "https://twitter.com/intent/tweet?url=\(environment.baseURL)/promo/\(slug)&text=\(entity.name)"
+    navigator.openLink(URL(string: urlString))
+  }
+  
+  public func shareWhatsapp() {
+    var urlString = "https://api.whatsapp.com/send?text=\(environment.baseURL)/promo/\(slug)"
+    urlString = urlString.replacingOccurrences(of: " ", with: "%20")
+    guard let url = URL(string: urlString) else { return }
+    navigator.openLink(URL(string: urlString))
+  }
+  
+  public func copyLink() {
+    let link = "\(environment.baseURL)/promo/\(slug)"
+    UIPasteboard.general.string = link
+  }
+  
 }
 
 public protocol PromotionDetailStoreFactory {

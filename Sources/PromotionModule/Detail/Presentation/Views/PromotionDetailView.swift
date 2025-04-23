@@ -13,25 +13,35 @@ import Kingfisher
 public struct PromotionDetailView: View {
   
   @ObservedObject var store: PromotionDetailStore
-  @State var height: CGFloat = 700
+  @State var webContentHeight: CGFloat = .zero
   
   public var body: some View {
-    VStack {
-      StandardHeaderView(title: "Detail Promo") {
-        store.navigateBack()
+    ZStack {
+      GeometryReader { proxy in
+        let frame = proxy.frame(in: .local)
+        
+        StandardHeaderView(title: "Detail Promo") {
+          store.navigateBack()
+        }
+        .background(Color.white)
+        .position(x: frame.midX, y: frame.minY + 20)
       }
       
-      if store.isExpired {
-        failedView()
-      } else {
-        contentView()
+      VStack {
+        if store.showFailedView {
+          failedView()
+        } else {
+          contentView()
+            .padding(.top, 56)
+        }
+        
       }
-      
-      Spacer()
+      .task {
+        await store.fetchPromotionLists()
+        await store.fetchPromotionDetail()
+      }
     }
-    .task {
-      await store.fetchPromotionDetail()
-    }
+    
   }
   
   @ViewBuilder
@@ -68,6 +78,31 @@ public struct PromotionDetailView: View {
             Text("Bagikan:")
               .foregroundStyle(Color.gray500)
               .captionLexend(size: 14)
+            
+            Button {
+              store.shareFacebook()
+            } label: {
+              Image("ic_facebook", bundle: .module)
+            }
+            
+            Button {
+              store.shareTwitter()
+            } label: {
+              Image("ic_twitter", bundle: .module)
+            }
+            
+            Button {
+              store.shareWhatsapp()
+            } label: {
+              Image("ic_whatsapp", bundle: .module)
+            }
+            
+            Button {
+              store.copyLink()
+            } label: {
+              Image("ic_copy_link", bundle: .module)
+            }
+            
           }
           .frame(maxWidth: .infinity, alignment: .leading)
           
@@ -112,10 +147,11 @@ public struct PromotionDetailView: View {
             Text("Syarat dan Ketentuan")
               .titleLexend(size: 12)
             
-            HTMLWebView(
-              htmlContent: store.getHTMlText(),
-              contentHeight: $height
+            HTMLNewWebView(
+              htmlContent: store.entity.tnc.wrappedInHTML,
+              contentHeight: $webContentHeight
             )
+            .frame(height: webContentHeight)
           }
         }
         .padding(.horizontal, 16)
@@ -147,27 +183,29 @@ public struct PromotionDetailView: View {
     VStack(spacing: 0) {
       Image("img_coupon_not_available", bundle: .module)
       
-      Text("Promo Ini Sudah Berakhir")
+      Text(store.failureTitle)
         .titleLexend(size: 20)
         .padding(.bottom, 16)
       
-      Text("Penawaran yang Anda cari telah berakhir dan tidak dapat digunakan lagi.")
+      Text(store.failureDescription)
         .foregroundStyle(Color.gray500)
         .captionLexend(size: 14)
         .multilineTextAlignment(.center)
         .padding(.bottom, 32)
       
-      ButtonPrimary(
-        title: "Lihat Promo yang Tersedia",
-        color: .buttonActiveColor,
-        width: .infinity,
-        height: 48
-      ) {
-        Task {
-          await store.fetchPromotionDetail()
+      if store.showButtonPromotionLists {
+        ButtonPrimary(
+          title: "Lihat Promo yang Tersedia",
+          color: .buttonActiveColor,
+          width: .infinity,
+          height: 48
+        ) {
+          Task {
+            await store.fetchPromotionDetail()
+          }
         }
+        .padding(.bottom, 12)
       }
-      .padding(.bottom, 12)
       
       ButtonSecondary(
         title: "Kembali Ke Beranda",
@@ -189,8 +227,10 @@ public struct PromotionDetailView: View {
     store: PromotionDetailStore(
       slug: "",
       userSessionDataSource: MockUserSessionDataSource(),
-      repository: MockPromotionDetailRepository(),
-      dashboardResponder: MockNavigator()
+      repository: MockPromotionRepository(),
+      detailRepository: MockPromotionDetailRepository(),
+      dashboardResponder: MockNavigator(),
+      navigator: MockNavigator()
     )
   )
 }
