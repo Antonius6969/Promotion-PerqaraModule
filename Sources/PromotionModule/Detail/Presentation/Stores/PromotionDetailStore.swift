@@ -197,7 +197,7 @@ public class PromotionDetailStore: ObservableObject {
   }
   
   public func copyLink() {
-    let link = "\(environment.baseURL)/promo/\(slug)"
+    let link = "\(environment.shareURL)/promo/\(slug)"
     UIPasteboard.general.string = link
   }
   

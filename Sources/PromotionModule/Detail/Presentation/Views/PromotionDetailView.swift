@@ -200,9 +200,7 @@ public struct PromotionDetailView: View {
           width: .infinity,
           height: 48
         ) {
-          Task {
-            await store.fetchPromotionDetail()
-          }
+          store.navigateBack()
         }
         .padding(.bottom, 12)
       }
