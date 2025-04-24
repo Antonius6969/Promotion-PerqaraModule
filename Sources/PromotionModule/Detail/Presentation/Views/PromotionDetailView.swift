@@ -181,7 +181,7 @@ public struct PromotionDetailView: View {
   @ViewBuilder
   func failedView() -> some View {
     VStack(spacing: 0) {
-      Image("img_coupon_not_available", bundle: .module)
+      Image(store.imageErrorName, bundle: .module)
       
       Text(store.failureTitle)
         .titleLexend(size: 20)

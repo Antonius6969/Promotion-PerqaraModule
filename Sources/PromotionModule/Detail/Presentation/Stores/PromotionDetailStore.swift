@@ -35,6 +35,7 @@ public class PromotionDetailStore: ObservableObject {
   @Published public var isExpired: Bool = false
   private var userSessionData: UserSessionData? = nil
   private var environment = Environment.shared
+  public var imageErrorName = "img_coupon_not_available"
   
   public init(
     slug: String,
@@ -79,6 +80,7 @@ public class PromotionDetailStore: ObservableObject {
       )
       
       if entity.status == .EXPIRED {
+        imageErrorName = "img_coupon_not_available"
         showFailedView = true
         failureTitle = "Promo Ini Sudah Berakhir"
         failureDescription = "Penawaran yang Anda cari telah berakhir dan tidak dapat digunakan lagi."
@@ -88,6 +90,7 @@ public class PromotionDetailStore: ObservableObject {
       guard let error = error as? ErrorMessage
       else { return }
       
+      imageErrorName = "img_coupon_not_available2"
       showFailedView = true
       failureTitle = "Tidak Ada Promo Tersedia"
       failureDescription = "Anda dapat gunakan layanan terbaik Perqara tanpa promo. Nantikan penawaran menarik selanjutnya!"

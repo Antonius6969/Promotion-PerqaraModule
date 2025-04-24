@@ -12,7 +12,7 @@ import GnDKit
 public class MockPromotionDetailRepository: PromotionDetailRepositoryLogic {
   
   public func fetchPromotionDetail(
-    headers: AprodhitKit.HeaderRequest,
+    headers: HeaderRequest,
     parameters: PromotionDetailParamRequest
   ) async throws -> PromotionEntity {
     
