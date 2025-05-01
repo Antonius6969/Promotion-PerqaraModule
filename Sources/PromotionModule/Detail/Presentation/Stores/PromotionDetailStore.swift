@@ -120,15 +120,20 @@ public class PromotionDetailStore: ObservableObject {
   }
   
   public func getUsageInfo() -> String {
-    var result: String = ""
     let info = entity.quota.time
     if info.contains("DAILY") {
-      result = "\(entity.quota.quota) Pengguna Per-hari"
-    } else if info.contains("MONTHLY") {
-      result = "\(entity.quota.quota) Pengguna Per-bulan"
+      return "\(entity.quota.quota) Pengguna Per-hari"
     }
     
-    return result
+    if info.contains("WEEKLY") {
+      return "\("\(entity.quota.quota) Pengguna Per-minggu")"
+    }
+    
+    if info.contains("MONTHLY") {
+      return "\(entity.quota.quota) Pengguna Per-bulan"
+    }
+    
+    return "Kuota tidak tersedia"
   }
   
   public func getExpiredInfo() -> String {
