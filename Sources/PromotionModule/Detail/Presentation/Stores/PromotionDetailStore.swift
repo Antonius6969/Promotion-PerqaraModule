@@ -133,7 +133,7 @@ public class PromotionDetailStore: ObservableObject {
       return "\(entity.quota.quota) Pengguna Per-bulan"
     }
     
-    return "Kuota tidak tersedia"
+    return "Tidak Tersedia"
   }
   
   public func getExpiredInfo() -> String {
