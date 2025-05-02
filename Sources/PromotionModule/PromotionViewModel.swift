@@ -24,7 +24,7 @@ public class PromotionViewModel: PromotionNavigator {
   }
   
   public func back() {
-    
+    view = .main
   }
   
   public func openLink(_ url: URL?) {

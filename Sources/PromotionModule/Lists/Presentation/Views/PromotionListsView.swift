@@ -20,6 +20,10 @@ public struct PromotionListsView: View {
         store.navigateBack()
       }
       
+      if store.showError {
+        failedView()
+      }
+      
       ScrollView {
         VStack {
           LazyVStack {
@@ -33,8 +37,10 @@ public struct PromotionListsView: View {
       }
       .background(Color.gray050)
     }
-    .task {
-      await store.fetchPromotionLists()
+    .onAppear {
+      Task {
+        await store.fetchPromotionLists()
+      }
     }
   }
   
@@ -86,6 +92,34 @@ public struct PromotionListsView: View {
     .frame(maxWidth: .infinity)
     .background(Color.white)
     .clipShape(RoundedRectangle(cornerRadius: 12))
+  }
+  
+  @ViewBuilder
+  func failedView() -> some View {
+    VStack(spacing: 0) {
+      Image("img_coupon_not_available2", bundle: .module)
+      
+      Text("Tidak Ada Promo Tersedia")
+        .titleLexend(size: 20)
+        .padding(.bottom, 16)
+      
+      Text("Anda dapat gunakan layanan terbaik Perqara tanpa promo. Nantikan penawaran menarik selanjutnya!")
+        .foregroundStyle(Color.gray500)
+        .captionLexend(size: 14)
+        .multilineTextAlignment(.center)
+        .padding(.bottom, 32)
+      
+      ButtonSecondary(
+        title: "Kembali Ke Beranda",
+        backgroundColor: .clear,
+        tintColor: .buttonActiveColor,
+        width: .infinity,
+        height: 48
+      ) {
+        store.navigateBack()
+      }
+    }
+    .padding(.horizontal, 32)
   }
   
 }

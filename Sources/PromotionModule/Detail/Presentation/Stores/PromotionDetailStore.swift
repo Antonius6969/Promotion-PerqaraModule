@@ -116,6 +116,14 @@ public class PromotionDetailStore: ObservableObject {
   
   //MARK: - Other Function
   
+  public func getTitlePromo() -> String {
+    if slug == "" {
+      return "Promo Perqara"
+    } else {
+      return "Detail Promo"
+    }
+  }
+  
   public func getPlatform() -> String {
     return entity.platform.joined(separator: ", ")
   }
@@ -174,6 +182,7 @@ public class PromotionDetailStore: ObservableObject {
   
   public func navigateBack() {
     didBack.send(true)
+    navigator.back()
   }
   
   public func navigateToListAdvocate() {

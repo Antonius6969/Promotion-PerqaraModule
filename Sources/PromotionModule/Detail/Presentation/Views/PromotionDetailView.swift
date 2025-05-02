@@ -20,7 +20,7 @@ public struct PromotionDetailView: View {
       GeometryReader { proxy in
         let frame = proxy.frame(in: .local)
         
-        StandardHeaderView(title: "Detail Promo") {
+        StandardHeaderView(title: store.getTitlePromo()) {
           store.navigateBack()
         }
         .background(Color.white)

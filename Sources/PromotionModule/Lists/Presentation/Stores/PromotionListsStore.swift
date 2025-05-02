@@ -17,6 +17,8 @@ public class PromotionListsStore: ObservableObject {
   private let promotionNavigator: PromotionNavigator
   
   @Published public var entities: [PromotionEntity] = []
+  @Published public var showError: Bool = false
+  
   var didBack = PassthroughSubject<Bool, Never>()
   
   public init(
@@ -32,14 +34,18 @@ public class PromotionListsStore: ObservableObject {
   @MainActor
   public func fetchPromotionLists() async {
     do {
-      entities = try await promotionRepository.fetchPromotionLists(
-        headers: HeaderRequest(token: ""),
-        parameters: PromotionListRequestParams()
-      )
+//      entities = try await promotionRepository.fetchPromotionLists(
+//        headers: HeaderRequest(token: ""),
+//        parameters: PromotionListRequestParams()
+//      )
       
-      GLogger(.info, layer: "Presentation", message: entities.map{ $0.slug })
+      entities = []
+      
+      if entities.isEmpty {
+        showError = true
+      }
     } catch {
-      
+      showError = true
     }
   }
   
