@@ -34,12 +34,10 @@ public class PromotionListsStore: ObservableObject {
   @MainActor
   public func fetchPromotionLists() async {
     do {
-//      entities = try await promotionRepository.fetchPromotionLists(
-//        headers: HeaderRequest(token: ""),
-//        parameters: PromotionListRequestParams()
-//      )
-      
-      entities = []
+      entities = try await promotionRepository.fetchPromotionLists(
+        headers: HeaderRequest(token: ""),
+        parameters: PromotionListRequestParams()
+      )
       
       if entities.isEmpty {
         showError = true
