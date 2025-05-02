@@ -79,11 +79,12 @@ public class PromotionDetailStore: ObservableObject {
         parameters: PromotionDetailParamRequest(slug: slug)
       )
       
-      if entity.status == .EXPIRED {
+      if entity.status == .EXPIRED || entity.status == .INACTIVE {
         imageErrorName = "img_coupon_not_available"
-        showFailedView = true
         failureTitle = "Promo Ini Sudah Berakhir"
         failureDescription = "Penawaran yang Anda cari telah berakhir dan tidak dapat digunakan lagi."
+        showFailedView = true
+        return
       }
       
     } catch {
@@ -91,9 +92,9 @@ public class PromotionDetailStore: ObservableObject {
       else { return }
       
       imageErrorName = "img_coupon_not_available2"
-      showFailedView = true
       failureTitle = "Tidak Ada Promo Tersedia"
       failureDescription = "Anda dapat gunakan layanan terbaik Perqara tanpa promo. Nantikan penawaran menarik selanjutnya!"
+      showFailedView = true
       
       GLogger(
         .info,
