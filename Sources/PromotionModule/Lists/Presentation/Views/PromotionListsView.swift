@@ -25,11 +25,9 @@ public struct PromotionListsView: View {
       }
       
       ScrollView {
-        VStack {
-          LazyVStack {
-            ForEach(store.entities, id: \.id) { entity in
-              promotionCard(entity)
-            }
+        LazyVStack {
+          ForEach(store.entities, id: \.id) { entity in
+            promotionCard(entity)
           }
         }
         .padding(.top, 16)
@@ -49,9 +47,7 @@ public struct PromotionListsView: View {
     VStack {
       KFImage
         .url(entity.imageURL)
-        .resizable()
-        .aspectRatio(contentMode: .fill)
-        .frame(maxWidth: .infinity, maxHeight: 180)
+        .aspectRatio(contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
           RoundedRectangle(cornerRadius: 8)
